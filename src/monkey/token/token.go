@@ -8,8 +8,8 @@ type Token struct {
 }
 
 const (
-	ILLEGAL = "ILLEGAL"
-	EOF     = "EOF"
+	ILLEGAL = "ILLEGAL" // unsupported token
+	EOF     = "EOF"     // end of file
 
 	// IDENTIFIERS AND LITERALS
 	IDENT = "IDENT"
