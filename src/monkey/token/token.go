@@ -7,6 +7,19 @@ type Token struct {
 	Literal string
 }
 
+var keywords = map[string]TokenType{
+	"fn":  FN,
+	"let": LET,
+}
+
+func LookupIdentifier(ident string) TokenType {
+	if tok, ok := keywords[ident]; ok {
+		return tok
+	}
+
+	return IDENT
+}
+
 const (
 	ILLEGAL = "ILLEGAL" // unsupported token
 	EOF     = "EOF"     // end of file
