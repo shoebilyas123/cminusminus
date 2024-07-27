@@ -8,8 +8,13 @@ type Token struct {
 }
 
 var keywords = map[string]TokenType{
-	"fn":  FN,
-	"let": LET,
+	"fn":     FN,
+	"let":    LET,
+	"if":     IF,
+	"else":   ELSE,
+	"return": RETURN,
+	"true":   TRUE,
+	"false":  FALSE,
 }
 
 func LookupIdentifier(ident string) TokenType {
@@ -50,6 +55,11 @@ const (
 	NOT_EQ    = "!="
 
 	// KEYWORDS
-	FN  = "FN"
-	LET = "LET"
+	FN     = "FN"
+	LET    = "LET"
+	IF     = "IF"
+	ELSE   = "ELSE"
+	TRUE   = "TRUE"
+	FALSE  = "FALSE"
+	RETURN = "RETURN"
 )
