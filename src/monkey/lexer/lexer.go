@@ -1,8 +1,6 @@
 package lexer
 
 import (
-	"fmt"
-
 	"github.com/shoebilyas123/monkeylang/monkey/token"
 )
 
@@ -104,7 +102,6 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdentifier(tok.Literal)
 
-			fmt.Printf("%+v\n", tok)
 			return tok
 		} else if isDigit(l.ch) {
 			tok.Type = token.INT
