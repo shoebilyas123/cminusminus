@@ -40,6 +40,15 @@ const (
 	LBRACE    = "{"
 	RBRACE    = "}"
 
+	EXCLAIM   = "!"
+	MINUS     = "-"
+	FOR_SLASH = "/"
+	GREATER   = ">"
+	SMALLER   = "<"
+	ASTERISK  = "*"
+	EQ        = "=="
+	NOT_EQ    = "!="
+
 	// KEYWORDS
 	FN  = "FN"
 	LET = "LET"

@@ -13,6 +13,8 @@ let add = fn(x, y) {
 x + y;
 };
 let result = add(five, ten);
+!-/*5;
+5 < 10 > 5;
 `
 	tests := []struct {
 		expectedType    token.TokenType
@@ -52,6 +54,18 @@ let result = add(five, ten);
 		{token.COMMA, ","},
 		{token.IDENT, "ten"},
 		{token.RPAREN, ")"},
+		{token.SEMICOLON, ";"},
+		{token.EXCLAIM, "!"},
+		{token.MINUS, "-"},
+		{token.FOR_SLASH, "/"},
+		{token.ASTERISK, "*"},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+		{token.INT, "5"},
+		{token.SMALLER, "<"},
+		{token.INT, "10"},
+		{token.GREATER, ">"},
+		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
