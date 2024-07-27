@@ -17,7 +17,7 @@ const (
 
 	// OPERATORS
 	ASSIGN = "="
-	ADD    = "+"
+	PLUS   = "+"
 
 	// DELIMITERS
 	COMMA     = ","
