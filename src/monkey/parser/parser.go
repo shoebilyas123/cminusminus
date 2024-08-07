@@ -1,13 +1,16 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/shoebilyas123/monkeylang/monkey/ast"
 	"github.com/shoebilyas123/monkeylang/monkey/lexer"
 	"github.com/shoebilyas123/monkeylang/monkey/token"
 )
 
 type Parser struct {
-	l *lexer.Lexer
+	l      *lexer.Lexer
+	errors []string
 
 	// curToken is the current token under examination
 	// Based on the peek token we will identify whether there's more ops
@@ -20,11 +23,24 @@ type Parser struct {
 }
 
 func New(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l}
+	p := &Parser{
+		l:      l,
+		errors: []string{},
+	}
 
 	p.nextToken()
 	p.nextToken()
 	return p
+}
+
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
+func (p *Parser) peekError(t token.TokenType) {
+	errMsg := fmt.Sprintf("Invalid token: Expected %s, got %s", t, p.peekToken.Type)
+
+	p.errors = append(p.errors, errMsg)
 }
 
 func (p *Parser) nextToken() {
@@ -66,6 +82,10 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
+	if !p.expectPeek(token.ASSIGN) {
+		return nil
+	}
+
 	// TODO: we are skipping expressions for now.
 	// We will get back to it after we have expression parsing working
 	for !p.curTokenIs(token.SEMICOLON) {
@@ -81,6 +101,7 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		return true
 	}
 
+	p.peekError(t)
 	return false
 }
 

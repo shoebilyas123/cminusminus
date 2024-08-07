@@ -9,13 +9,14 @@ import (
 
 func TestLetStatements(t *testing.T) {
 	input := `
-let x = 5;
-let y = 10;
-let foobar = 838383;
+let x 5;
+let  = 10;
+let 838383;
 `
 	l := lexer.New(input)
 	p := New(l)
 	program := p.ParseProgram()
+	checkParseErrors(t, p)
 	if program == nil {
 		t.Fatalf("ParseProgram() returned nil")
 	}
@@ -35,6 +36,21 @@ let foobar = 838383;
 			}
 		}
 	}
+}
+
+func checkParseErrors(t *testing.T, p *Parser) {
+	errors := p.errors
+
+	if len(errors) == 0 {
+		return
+	}
+
+	t.Errorf("Parser has %d errors", len(errors))
+
+	for _, msg := range errors {
+		t.Errorf("Parser Error: %q", msg)
+	}
+	t.FailNow()
 }
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "let" {
