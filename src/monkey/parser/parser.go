@@ -8,12 +8,28 @@ import (
 	"github.com/shoebilyas123/monkeylang/monkey/token"
 )
 
+type (
+	prefixParseFunc func() ast.Expression
+	infixParseFunc  func(ast.Expression) ast.Expression
+)
+
 type Parser struct {
 	l *lexer.Lexer
 
 	curToken  token.Token
 	peekToken token.Token
 	errors    []string
+
+	prefixParseFns map[token.TokenType]prefixParseFunc
+	infixParseFns  map[token.TokenType]infixParseFunc
+}
+
+func (p *Parser) registerPrefix(tok token.TokenType, pf prefixParseFunc) {
+	p.prefixParseFns[tok] = pf
+}
+
+func (p *Parser) registerInfix(tok token.TokenType, pf infixParseFunc) {
+	p.infixParseFns[tok] = pf
 }
 
 func New(l *lexer.Lexer) *Parser {
