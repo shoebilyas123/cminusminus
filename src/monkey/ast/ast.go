@@ -68,6 +68,7 @@ func (l *LetStatement) String() string {
 		out.WriteString(l.Value.String())
 	}
 
+	out.WriteString(";")
 	return out.String()
 
 }
@@ -100,6 +101,7 @@ func (r *ReturnStatement) String() string {
 		out.WriteString(r.Value.String())
 	}
 
+	out.WriteString(";")
 	return out.String()
 }
 
