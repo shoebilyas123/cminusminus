@@ -2,10 +2,27 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/shoebilyas123/monkeylang/monkey/ast"
 	"github.com/shoebilyas123/monkeylang/monkey/lexer"
 	"github.com/shoebilyas123/monkeylang/monkey/token"
+)
+
+const (
+	_ int = iota
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // >,<
+	SUM         // +, -
+	PRODUCT     // *, /
+	PREFIX      // -X or +X
+	CALL        // myFunc(x)
+)
+
+type (
+	prefixParsingFn func() ast.Expression
+	infixParsingFn  func(ast.Expression) ast.Expression
 )
 
 type Parser struct {
@@ -37,6 +54,20 @@ func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
+func (p *Parser) parseIntegerLiteral() ast.Expression {
+	lit := &ast.IntegerLiteral{Token: p.curToken}
+	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
+
+	if err != nil {
+		msg := fmt.Sprintf("Could not parse %q as integer", p.curToken.Literal)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+
+	lit.Value = value
+	return lit
+}
+
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
 		l:      l,
@@ -44,6 +75,7 @@ func New(l *lexer.Lexer) *Parser {
 	}
 	p.prefixParsingFns = make(map[token.TokenType]prefixParsingFn)
 	p.registerPrefixFn(token.IDENT, p.parseIdentifier)
+	p.registerPrefixFn(token.INT, p.parseIntegerLiteral)
 
 	p.nextToken()
 	p.nextToken()
@@ -65,6 +97,24 @@ func (p *Parser) nextToken() {
 	p.peekToken = p.l.NextToken()
 }
 
+func (p *Parser) expectPeek(t token.TokenType) bool {
+	if p.peekToken.Type == t {
+		p.nextToken()
+		return true
+	}
+
+	p.peekError(t)
+	return false
+}
+
+func (p *Parser) curTokenIs(tt token.TokenType) bool {
+	if p.curToken.Type == tt {
+		return true
+	}
+
+	return false
+}
+
 // CURRENTLY: We are creating parse programs for parsing let statements
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
@@ -80,17 +130,6 @@ func (p *Parser) ParseProgram() *ast.Program {
 	}
 	return program
 }
-
-const (
-	_ int = iota
-	LOWEST
-	EQUALS      // ==
-	LESSGREATER // >,<
-	SUM         // +, -
-	PRODUCT     // *, /
-	PREFIX      // -X or +X
-	CALL        // myFunc(x)
-)
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParsingFns[p.curToken.Type]
@@ -159,26 +198,3 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
 	return stmt
 }
-
-func (p *Parser) expectPeek(t token.TokenType) bool {
-	if p.peekToken.Type == t {
-		p.nextToken()
-		return true
-	}
-
-	p.peekError(t)
-	return false
-}
-
-func (p *Parser) curTokenIs(tt token.TokenType) bool {
-	if p.curToken.Type == tt {
-		return true
-	}
-
-	return false
-}
-
-type (
-	prefixParsingFn func() ast.Expression
-	infixParsingFn  func(ast.Expression) ast.Expression
-)
