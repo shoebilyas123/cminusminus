@@ -20,6 +20,21 @@ type Parser struct {
 	// or at the start of an arithmetic expression
 	curToken  token.Token
 	peekToken token.Token
+
+	prefixParsingFns map[token.TokenType]prefixParsingFn
+	infixParsingFns  map[token.TokenType]infixParsingFn
+}
+
+func (p *Parser) registerInfixFn(_tok token.TokenType, fn infixParsingFn) {
+	p.infixParsingFns[_tok] = fn
+}
+
+func (p *Parser) registerPrefixFn(_tok token.TokenType, fn prefixParsingFn) {
+	p.prefixParsingFns[_tok] = fn
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -27,6 +42,8 @@ func New(l *lexer.Lexer) *Parser {
 		l:      l,
 		errors: []string{},
 	}
+	p.prefixParsingFns = make(map[token.TokenType]prefixParsingFn)
+	p.registerPrefixFn(token.IDENT, p.parseIdentifier)
 
 	p.nextToken()
 	p.nextToken()
@@ -64,6 +81,41 @@ func (p *Parser) ParseProgram() *ast.Program {
 	return program
 }
 
+const (
+	_ int = iota
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // >,<
+	SUM         // +, -
+	PRODUCT     // *, /
+	PREFIX      // -X or +X
+	CALL        // myFunc(x)
+)
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := p.prefixParsingFns[p.curToken.Type]
+
+	if prefix == nil {
+		return nil
+	}
+
+	leftExp := prefix()
+
+	return leftExp
+}
+
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{Token: p.curToken}
+
+	stmt.Expression = p.parseExpression(LOWEST)
+
+	if p.expectPeek(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.LET:
@@ -71,7 +123,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
-		return nil
+		return p.parseExpressionStatement()
 	}
 }
 
@@ -125,3 +177,8 @@ func (p *Parser) curTokenIs(tt token.TokenType) bool {
 
 	return false
 }
+
+type (
+	prefixParsingFn func() ast.Expression
+	infixParsingFn  func(ast.Expression) ast.Expression
+)
