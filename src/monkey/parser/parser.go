@@ -106,6 +106,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefixFn(token.INT, p.parseIntegerLiteral)
 	p.registerPrefixFn(token.EXCLAIM, p.parsePrefixExpression)
 	p.registerPrefixFn(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefixFn(token.TRUE, p.parseBooleanExpression)
+	p.registerPrefixFn(token.FALSE, p.parseBooleanExpression)
 
 	p.infixParsingFns = make(map[token.TokenType]infixParsingFn)
 	p.registerInfixFn(token.EQ, p.parseInfixExpression)
@@ -231,6 +233,9 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	return pref
 }
 
+func (p *Parser) parseBooleanExpression() ast.Expression {
+	return &ast.BooleanExpression{Token: p.curToken, Value: p.curTokenIs(token.TRUE)}
+}
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.LET:
