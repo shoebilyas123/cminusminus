@@ -217,7 +217,7 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	p.nextToken()
 	grpExp := p.parseExpression(LOWEST)
 
-	if !p.peekTokenIs(token.RPAREN) {
+	if !p.expectPeek(token.RPAREN) {
 		return nil
 	}
 
@@ -272,10 +272,6 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
-
-	// for !p.curTokenIs(token.SEMICOLON) {
-	// 	p.nextToken()
-	// }
 
 	return stmt
 }
