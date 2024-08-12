@@ -110,6 +110,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefixFn(token.FALSE, p.parseBooleanExpression)
 	p.registerPrefixFn(token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefixFn(token.IF, p.parseIfExpression)
+	p.registerPrefixFn(token.FN, p.parseFunctionLiterals)
 
 	p.infixParsingFns = make(map[token.TokenType]infixParsingFn)
 	p.registerInfixFn(token.EQ, p.parseInfixExpression)
@@ -265,6 +266,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	stmt := &ast.ReturnStatement{Token: p.curToken}
 	p.nextToken()
 
+	// Parse the expressions after return
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
@@ -354,4 +356,67 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	}
 
 	return block
+}
+
+// ------Parse Functions Literals------
+// fn(x, y) {return x+y;}
+// fn <parameters> <block_statement>
+
+func (p *Parser) parseFunctionLiterals() ast.Expression {
+	fnlit := &ast.FunctionLiteral{Token: p.curToken}
+
+	if !p.expectPeek(token.LPAREN) {
+		return nil
+	}
+
+	fnlit.Parameters = p.parseFunctionParameters()
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	fnlit.Body = p.parseBlockStatement()
+
+	return fnlit
+}
+
+func (p *Parser) parseFunctionParameters() []*ast.Identifier {
+	idns := []*ast.Identifier{}
+
+	if p.peekTokenIs(token.RPAREN) {
+		p.nextToken()
+		return idns
+	}
+
+	p.nextToken()
+
+	id := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	idns = append(idns, id)
+
+	// (x, y)
+	//  |
+	for p.peekTokenIs(token.COMMA) {
+
+		// (x, y)
+		//  |
+		p.nextToken()
+
+		// NOW ==> (x, y)
+		//           |
+		p.nextToken()
+
+		// NOW ==> (x, y)
+		//             |
+
+		id := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+		idns = append(idns, id)
+	}
+
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+
+	return idns
 }
