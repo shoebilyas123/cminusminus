@@ -87,8 +87,8 @@ func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
 func (i *Identifier) String() string       { return i.Value }
 
 type ReturnStatement struct {
-	Token token.Token
-	Value Expression
+	Token       token.Token
+	ReturnValue Expression
 }
 
 func (r *ReturnStatement) statementNode()       {}
@@ -98,8 +98,8 @@ func (r *ReturnStatement) String() string {
 
 	out.WriteString(r.Token.Literal + " ")
 
-	if r.Value != nil {
-		out.WriteString(r.Value.String())
+	if r.ReturnValue != nil {
+		out.WriteString(r.ReturnValue.String())
 	}
 
 	out.WriteString(";")

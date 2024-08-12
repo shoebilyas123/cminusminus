@@ -8,37 +8,6 @@ import (
 	"github.com/shoebilyas123/monkeylang/monkey/lexer"
 )
 
-func TestLetStatements(t *testing.T) {
-	input := `
-let x = 5;
-let y = 10;
-let a = 838383;
-`
-	l := lexer.New(input)
-	p := New(l)
-	program := p.ParseProgram()
-	checkParseErrors(t, p)
-	if program == nil {
-		t.Fatalf("ParseProgram() returned nil")
-	}
-	if len(program.Statements) != 3 {
-		t.Fatalf("program.Statements does not contain 3 statements. got=%d",
-			len(program.Statements))
-		tests := []struct {
-			expectedIdentifier string
-		}{
-			{"x"},
-			{"y"}, {"foobar"},
-		}
-		for i, tt := range tests {
-			stmt := program.Statements[i]
-			if !testLetStatement(t, stmt, tt.expectedIdentifier) {
-				return
-			}
-		}
-	}
-}
-
 func checkParseErrors(t *testing.T, p *Parser) {
 	errors := p.errors
 
@@ -77,7 +46,7 @@ func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 func TestReturnStatements(t *testing.T) {
 	input := `
 return 5;
-return "string" ;
+return string;
 return 993322;
 `
 	l := lexer.New(input)
@@ -555,4 +524,34 @@ func TestCallExpressionParsing(t *testing.T) {
 	testLiteralExpression(t, exp.Arguments[0], 1)
 	testInfixExpression(t, exp.Arguments[1], 2, "*", 3)
 	testInfixExpression(t, exp.Arguments[2], 4, "+", 5)
+}
+
+func TestLetStatements(t *testing.T) {
+	tests := []struct {
+		input              string
+		expectedIdentifier string
+		expectedValue      interface{}
+	}{
+		{"let x = 5;", "x", 5},
+		{"let y = true;", "y", true},
+		{"let foobar = y;", "foobar", "y"},
+	}
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		checkParseErrors(t, p)
+		if len(program.Statements) != 1 {
+			t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+				len(program.Statements))
+		}
+		stmt := program.Statements[0]
+		if !testLetStatement(t, stmt, tt.expectedIdentifier) {
+			return
+		}
+		val := stmt.(*ast.LetStatement).Value
+		if !testLiteralExpression(t, val, tt.expectedValue) {
+			return
+		}
+	}
 }
