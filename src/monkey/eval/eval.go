@@ -33,10 +33,24 @@ func Eval(node ast.Node) object.Object {
 	return nil
 }
 
-func evalInfixExpression(op string, right object.Object, left object.Object) object.Object {
+func evalInfixExpression(op string, right, left object.Object) object.Object {
+	switch {
+	case right.Type() == object.INTEGER_OBJ && left.Type() == object.INTEGER_OBJ:
+		return evalIntegerInfixExpression(op, right, left)
+	case op == "==":
+		return getBooleanObject(left == right)
+	case op == "!=":
+		return getBooleanObject(left != right)
+	default:
+		return NULL
+	}
+}
+
+func evalIntegerInfixExpression(op string, right, left object.Object) object.Object {
 	// 1.0: Assuming that the right and left expressions are integers;
-	re_val := right.(*object.IntegerObject).Value
+
 	le_val := left.(*object.IntegerObject).Value
+	re_val := right.(*object.IntegerObject).Value
 
 	switch op {
 	case "+":
@@ -52,9 +66,9 @@ func evalInfixExpression(op string, right object.Object, left object.Object) obj
 	case ">":
 		return getBooleanObject(le_val > re_val)
 	case "==":
-		return getBooleanObject(le_val == re_val)
+		return getBooleanObject(left == right)
 	case "!=":
-		return getBooleanObject(le_val != re_val)
+		return getBooleanObject(left != right)
 	default:
 		return NULL
 	}
