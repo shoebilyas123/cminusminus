@@ -336,7 +336,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken()
 
-		if !p.peekTokenIs(token.LBRACE) {
+		if !p.expectPeek(token.LBRACE) {
 			return nil
 		}
 		exp.Alternative = p.parseBlockStatement()
