@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/shoebilyas123/monkeylang/monkey/eval"
 	"github.com/shoebilyas123/monkeylang/monkey/lexer"
 	"github.com/shoebilyas123/monkeylang/monkey/parser"
 )
@@ -32,12 +33,12 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		// for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
-		// fmt.Printf("%+v\n", tok)
-		// }
+		evaluated := eval.Eval(program)
 
-		io.WriteString(out, program.String())
-		io.WriteString(out, "\n")
+		if evaluated != nil {
+			io.WriteString(out, evaluated.Inspect())
+			io.WriteString(out, "\n")
+		}
 	}
 }
 
