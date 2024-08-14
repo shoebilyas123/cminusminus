@@ -13,41 +13,53 @@ var (
 	FALSE = &object.BooleanObject{Value: false}
 )
 
-func Eval(node ast.Node) object.Object {
+func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalProgram(node)
+		return evalProgram(node, env)
+	case *ast.Identifier:
+		return evalIdentifier(node, env)
+	case *ast.LetStatement:
+		rvalue := evalLetStatement(node, env)
+
+		if isError(rvalue) {
+			return rvalue
+		}
+
+		env.Set(node.Name.Value, rvalue)
+		return rvalue
 	case *ast.IntegerLiteral:
 		return &object.IntegerObject{Value: node.Value}
 	case *ast.BooleanExpression:
 		return getBooleanObject(node.Value)
 	case *ast.ExpressionStatement:
-		return Eval(node.Expression)
+		return Eval(node.Expression, env)
 	case *ast.PrefixExpression:
-		right := Eval(node.Right)
+		right := Eval(node.Right, env)
 
 		if isError(right) {
 			return right
 		}
 		return evalPrefixExpression(node.Operator, right)
 	case *ast.InfixExpression:
-		left := Eval(node.Left)
+		left := Eval(node.Left, env)
+
 		if isError(left) {
 			return left
 		}
 
-		right := Eval(node.Right)
+		right := Eval(node.Right, env)
 
 		if isError(right) {
 			return right
 		}
 		return evalInfixExpression(node.Operator, right, left)
 	case *ast.BlockStatement:
-		return evalBlockStatement(node)
+		return evalBlockStatement(node, env)
 	case *ast.IfExpression:
-		return evalIfExpression(node)
+		return evalIfExpression(node, env)
 	case *ast.ReturnStatement:
-		val := Eval(node.ReturnValue)
+		val := Eval(node.ReturnValue, env)
 		if isError(val) {
 			return val
 		}
@@ -57,11 +69,27 @@ func Eval(node ast.Node) object.Object {
 	return nil
 }
 
-func evalProgram(node *ast.Program) object.Object {
+func evalLetStatement(node *ast.LetStatement, env *object.Environment) object.Object {
+	expVal := Eval(node.Value, env)
+
+	return expVal
+}
+
+func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
+	varVal, ok := env.Get(node.Value)
+
+	if !ok {
+		return newError("NOT FOUND: undefined identifier - %s", node.Value)
+	}
+
+	return varVal
+}
+
+func evalProgram(node *ast.Program, env *object.Environment) object.Object {
 	var result object.Object
 
 	for _, statement := range node.Statements {
-		result = Eval(statement)
+		result = Eval(statement, env)
 		switch result := result.(type) {
 		case *object.ReturnObject:
 			return result.Value
@@ -73,10 +101,10 @@ func evalProgram(node *ast.Program) object.Object {
 	return result
 }
 
-func evalBlockStatement(block *ast.BlockStatement) object.Object {
+func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) object.Object {
 	var result object.Object
 	for _, statement := range block.Statements {
-		result = Eval(statement)
+		result = Eval(statement, env)
 		if result != nil {
 			rt := result.Type()
 			if rt == object.RETURN_OBJ || rt == object.ERROR_OBJ {
@@ -87,17 +115,17 @@ func evalBlockStatement(block *ast.BlockStatement) object.Object {
 	return result
 }
 
-func evalIfExpression(node *ast.IfExpression) object.Object {
-	condition := Eval(node.Condition)
+func evalIfExpression(node *ast.IfExpression, env *object.Environment) object.Object {
+	condition := Eval(node.Condition, env)
 
 	switch condition.(type) {
 	case *object.ErrorObject:
 		return condition
 	default:
 		if isTruthy(condition) {
-			return Eval(node.Consequence)
+			return Eval(node.Consequence, env)
 		} else if node.Alternative != nil {
-			return Eval(node.Alternative)
+			return Eval(node.Alternative, env)
 		}
 	}
 
@@ -117,9 +145,19 @@ func isTruthy(condition object.Object) bool {
 	}
 }
 
+func CanArithmeticAddVariables(t1 object.Object, t2 object.Object) bool {
+	if (t1.Type() == object.INTEGER_OBJ && t2.Type() == object.INTEGER_OBJ) ||
+		(t1.Type() == object.INTEGER_OBJ && t2.Type() == object.RETURN_OBJ && t2.(*object.ReturnObject).Value.Type() == object.INTEGER_OBJ) ||
+		(t2.Type() == object.INTEGER_OBJ && t1.Type() == object.RETURN_OBJ && t1.(*object.ReturnObject).Value.Type() == object.INTEGER_OBJ) {
+		return true
+	}
+
+	return false
+}
+
 func evalInfixExpression(op string, right, left object.Object) object.Object {
 	switch {
-	case right.Type() == object.INTEGER_OBJ && left.Type() == object.INTEGER_OBJ:
+	case CanArithmeticAddVariables(right, left):
 		return evalIntegerInfixExpression(op, right, left)
 	case op == "==":
 		return getBooleanObject(left == right)
@@ -144,9 +182,20 @@ func isError(obj object.Object) bool {
 
 func evalIntegerInfixExpression(op string, right, left object.Object) object.Object {
 	// 1.0: Assuming that the right and left expressions are integers;
+	var le_val int64
+	var re_val int64
 
-	le_val := left.(*object.IntegerObject).Value
-	re_val := right.(*object.IntegerObject).Value
+	if left.Type() == object.RETURN_OBJ {
+		le_val = left.(*object.ReturnObject).Value.(*object.IntegerObject).Value
+	} else {
+		le_val = left.(*object.IntegerObject).Value
+	}
+
+	if right.Type() == object.RETURN_OBJ {
+		re_val = right.(*object.ReturnObject).Value.(*object.IntegerObject).Value
+	} else {
+		re_val = right.(*object.IntegerObject).Value
+	}
 
 	switch op {
 	case "+":
