@@ -29,8 +29,4 @@ let add = fn(a,b) {return a+b;}
 - Networking Capabilities
 
 ### Installation
-
-The installation process is quite straightforward.
-
-- Just run `go install https://github.com/shoebilyas123/cminusminus`.
-- Enter `cmm` to enter the REPL.
+ --editing...---
