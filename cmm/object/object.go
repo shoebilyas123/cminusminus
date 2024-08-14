@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/shoebilyas123/monkeylang/monkey/ast"
+	"github.com/shoebilyas123/cminusminus/cmm/ast"
 )
 
 type ObjectType string

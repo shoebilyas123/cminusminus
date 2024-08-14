@@ -1,3 +1,3 @@
-module github.com/shoebilyas123/monkeylang
+module github.com/shoebilyas123/cminusminus
 
 go 1.22.3

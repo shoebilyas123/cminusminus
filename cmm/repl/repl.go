@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/shoebilyas123/monkeylang/monkey/eval"
-	"github.com/shoebilyas123/monkeylang/monkey/lexer"
-	"github.com/shoebilyas123/monkeylang/monkey/object"
-	"github.com/shoebilyas123/monkeylang/monkey/parser"
+	"github.com/shoebilyas123/cminusminus/cmm/eval"
+	"github.com/shoebilyas123/cminusminus/cmm/lexer"
+	"github.com/shoebilyas123/cminusminus/cmm/object"
+	"github.com/shoebilyas123/cminusminus/cmm/parser"
 )
 
 func Start(in io.Reader, out io.Writer) {

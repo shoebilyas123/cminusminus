@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/shoebilyas123/monkeylang/monkey/ast"
-	"github.com/shoebilyas123/monkeylang/monkey/lexer"
+	"github.com/shoebilyas123/cminusminus/cmm/ast"
+	"github.com/shoebilyas123/cminusminus/cmm/lexer"
 )
 
 func checkParseErrors(t *testing.T, p *Parser) {

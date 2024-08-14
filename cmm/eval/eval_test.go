@@ -3,9 +3,9 @@ package eval
 import (
 	"testing"
 
-	"github.com/shoebilyas123/monkeylang/monkey/lexer"
-	"github.com/shoebilyas123/monkeylang/monkey/object"
-	"github.com/shoebilyas123/monkeylang/monkey/parser"
+	"github.com/shoebilyas123/cminusminus/cmm/lexer"
+	"github.com/shoebilyas123/cminusminus/cmm/object"
+	"github.com/shoebilyas123/cminusminus/cmm/parser"
 )
 
 // func TestEvalIntegerExpression(t *testing.T) {

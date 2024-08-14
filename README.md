@@ -26,7 +26,11 @@ let add = fn(a,b) {return a+b;}
 - Add Strings and character primitives
 - Arrays
 - Standard i/o functions for cli
+- Networking Capabilities
 
 ### Installation
 
-The installation process is quite straightforward. Just run `go install <cmm_repo_name>`
+The installation process is quite straightforward.
+
+- Just run `go install https://github.com/shoebilyas123/cminusminus`.
+- Enter `cmm` to enter the REPL.

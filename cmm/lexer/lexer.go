@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"github.com/shoebilyas123/monkeylang/monkey/token"
+	"github.com/shoebilyas123/cminusminus/cmm/token"
 )
 
 type Lexer struct {
