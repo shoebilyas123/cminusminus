@@ -19,6 +19,8 @@ You can declare functions with the `fn` keyword.
 ```
 let add = fn(a,b) {return a+b;}
 ```
+### REPL
+You can exit the REPL by using `exit()` command.
 
 ### Todo Features
 
