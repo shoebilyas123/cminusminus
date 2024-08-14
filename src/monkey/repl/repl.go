@@ -30,6 +30,7 @@ func Start(in io.Reader, out io.Writer) {
 		if line == "exit()" {
 			break
 		}
+
 		l := lexer.New(line)
 		p := parser.New(l)
 

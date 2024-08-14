@@ -17,6 +17,20 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalProgram(node, env)
+	case *ast.FunctionLiteral:
+		return &object.Function{Body: node.Body, Env: env, Parameters: node.Parameters}
+	case *ast.CallExpression:
+		function := Eval(node.Function, env)
+		if isError(function) {
+			return function
+		}
+
+		args := evalExpressions(node.Arguments, env)
+		if len(args) == 1 && isError(args[0]) {
+			return args[0]
+		}
+
+		return applyFunction(function, args)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 	case *ast.LetStatement:
@@ -67,6 +81,54 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	}
 
 	return nil
+}
+
+func applyFunction(fn object.Object, args []object.Object) object.Object {
+	function, ok := fn.(*object.Function)
+
+	if !ok {
+		return newError("not a function: %s", function)
+	}
+
+	extendedEnv := extendFuncEnv(function, args)
+	evaluated := Eval(function.Body, extendedEnv)
+
+	return unwrapReturnValue(evaluated)
+
+}
+
+func unwrapReturnValue(obj object.Object) object.Object {
+	if returnValue, ok := obj.(*object.ReturnObject); ok {
+		return returnValue.Value
+	}
+	return obj
+}
+
+func extendFuncEnv(fn *object.Function, args []object.Object) *object.Environment {
+
+	newEnv := object.NewClosure(fn.Env)
+
+	for paramIndex, param := range fn.Parameters {
+		newEnv.Set(param.Value, args[paramIndex])
+	}
+
+	return newEnv
+}
+
+func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Object {
+	var result []object.Object
+
+	for _, exp := range exps {
+		evalexp := Eval(exp, env)
+
+		if isError(evalexp) {
+			return []object.Object{evalexp}
+		}
+
+		result = append(result, evalexp)
+	}
+
+	return result
 }
 
 func evalLetStatement(node *ast.LetStatement, env *object.Environment) object.Object {
