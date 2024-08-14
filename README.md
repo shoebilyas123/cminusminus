@@ -29,4 +29,8 @@ let add = fn(a,b) {return a+b;}
 - Networking Capabilities
 
 ### Installation
- --editing...---
+ - Clone the repository.
+ - Navigate into the source code and run `./build.sh`.
+ - If shows permission errors: `chmod a+x ./build.sh`.
+ - Now run ./build.sh again the go will build the code binary in the `bin/` directory.
+ - Run ./bin/cminusminus and you will enter the REPL. 
