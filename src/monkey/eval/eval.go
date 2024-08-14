@@ -87,7 +87,7 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 	function, ok := fn.(*object.Function)
 
 	if !ok {
-		return newError("not a function: %s", function)
+		return newError("not a function: %s", function.Type())
 	}
 
 	extendedEnv := extendFuncEnv(function, args)

@@ -86,8 +86,8 @@ func testEval(i string) object.Object {
 	l := lexer.New(i)
 	p := parser.New(l)
 	program := p.ParseProgram()
-
-	return Eval(program)
+	env := object.NewEnvironment()
+	return Eval(program, env)
 }
 
 func testIntegerObject(t *testing.T, ev object.Object, exp int64) bool {
@@ -217,4 +217,14 @@ func TestErrorHandling(t *testing.T) {
 				tt.expectedMessage, errObj.Message)
 		}
 	}
+}
+
+func TestClosures(t *testing.T) {
+	input := `
+let newAdder = fn(x) {
+fn(y) { x + y };
+};
+let addTwo = newAdder(2);
+addTwo(2);`
+	testIntegerObject(t, testEval(input), 4)
 }
