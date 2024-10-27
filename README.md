@@ -10,6 +10,7 @@ The working of the interpreter will give a brief idea about how it works and it'
 - Pratt Parser: The appropriate parsing function is associated with very node in our AST, depending whether the token is found in a prefix or an infix expression.
 - Evaluation: Traverse the AST, visit each node and do what the node signifies. It's called tree-walking interpreter.
 - Object System: Every value in our code is an `Object`. Each value in our environment is wrapped inside a struct which fufills this `Object` interface. We have used an object system to represent the internal values instead of primitive types.
+- *Garbage Collection*: Golang handles garbage collection under the hood. To implement a garbage collection system we will need to bypass golang's garbace collection which is not possible.  
 
 ### Variables
 
