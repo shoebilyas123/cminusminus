@@ -3,7 +3,7 @@
 Hundreds of hours went into brainstorming that unique name for my language. Phew, who would have thought of that. CMinusMinus is just a dynamically typed, interpreted and a very unoptimized toy language that I used to learn how interpreters work. Currently it's very simple language with REPL playgroud.
 
 
-## Working
+### Working
 The working of the interpreter will give a brief idea about how it works and it's architecture:
 - Lexer: The input code is fed into the lexer that performs lexical analysis of our code and outputs our code as a list of small workable data structures called tokens.
 - Parser: The output from the lexer is picked up by the parser that parses our code and generates an abstract syntax tree. We have achieved this by implementing a pratt parser.
